@@ -177,14 +177,6 @@ module cache_fsm(
         // cache hit (tag match and cache entry is valid, and the domain is allowed to hit)
         if (hit) begin
           v_cpu_res.ready = '1;
-
-          for (i = 0; i < WAY_NUM; i++) begin
-              if (tag_read[i].tag == tag) begin // if way 'i' is valid
-                way_index = i;
-                lru_way = i;
-                break; // found way that hit
-              end
-          end
           
           // write hit
           if (cpu_req.rw) begin
@@ -246,16 +238,6 @@ module cache_fsm(
             max_lru_value = 2'b00;        // oldest LRU value found so far (assuming 0=MRU, 3=LRU)
             domain_ways_assigned = 1'b0;  // default value
 
-            /* for (i = 0; i < WAY_NUM; i++) begin
-              if (current_domain_fillmap[i]) begin // only consider ways allocated to this domain
-                domain_ways_assigned = 1'b1;
-                if ((lru_read[i] > max_lru_value)) begin
-                  max_lru_value = lru_read[i];
-                  lru_way = i;
-                end
-              end
-            end */
-
             for (i = 0; i < WAY_NUM; i++) begin
               if (current_domain_fillmap[i]) begin // only consider ways allocated to this domain
                 if (!domain_ways_assigned) begin
@@ -263,11 +245,11 @@ module cache_fsm(
                   // this ensures correct eviction of a single line, within the set associative structure
                   domain_ways_assigned = 1'b1;
                   max_lru_value = lru_read[i];
-                  lru_way = i[WAY_NUM_BITS-1:0];
+                  lru_way = i;
                 end else if (lru_read[i] > max_lru_value) begin
                   // strictly older LRU found
                   max_lru_value = lru_read[i];
-                  lru_way = i[WAY_NUM_BITS-1:0];
+                  lru_way = i;
                 end
               end
             end
