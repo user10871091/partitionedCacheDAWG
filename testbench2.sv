@@ -2,7 +2,7 @@
 `include "rtl/cache_fsm.sv"
 import cache_pkg::*;
 
-module attackTestbench;
+module testbench2;
 
   bit clk, rst;
   cpu_req_type   cpu_req;
